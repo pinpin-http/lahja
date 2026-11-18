@@ -241,8 +241,13 @@ def seed_spread(corpus: str, df: pd.DataFrame) -> dict:
     return out
 
 
+BY_SOURCE_MIN_ROWS = 20
+
+
 def by_source(df: pd.DataFrame, preds: dict[str, pd.DataFrame]) -> dict:
-    """Test macro-F1 split by corpus of origin (FLORES, SADA, Lahga)."""
+    """Test macro-F1 split by corpus of origin (FLORES, SADA, Lahga), over the classes that have
+    at least BY_SOURCE_MIN_ROWS test sentences in that corpus: SADA has 2 Maghrebi test sentences,
+    and their F1 alone would move its macro-F1 by a quarter."""
     out = {}
     test = df[df.split == "test"]
     for name in ("baseline", *[k for k in ENCODERS if k in preds]):
@@ -250,10 +255,12 @@ def by_source(df: pd.DataFrame, preds: dict[str, pd.DataFrame]) -> dict:
         out[name] = {}
         for src, g in test.groupby("source"):
             rows = p.loc[g.index]
-            present = sorted(rows.label.unique())
+            counts = rows.label.value_counts()
+            present = sorted(counts[counts >= BY_SOURCE_MIN_ROWS].index)
             out[name][src] = {
                 "n": int(len(rows)),
                 "macro_f1": round(float(f1_score(rows.label, rows.pred, labels=present, average="macro")), 4),
                 "accuracy": round(float((rows.label == rows.pred).mean()), 4),
+                "classes": present,
             }
     return out

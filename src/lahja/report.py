@@ -10,6 +10,7 @@ import pandas as pd
 
 from .config import CLASSES, DOCS, ENCODERS, FIGURES, SOURCES, corpus_dirs
 from .data import load_split
+from .evaluate import BY_SOURCE_MIN_ROWS
 from .figures import confusion_grid, reliability_plot
 
 log = logging.getLogger(__name__)
@@ -320,8 +321,18 @@ def write_evaluation(corpus: str, R: dict, df: pd.DataFrame, lang: str) -> str:
         "",
     ]
 
-    out += [f"### {T['by_source']}", "", T["by_source_intro"], ""]
     srcs = sorted(m["by_source"]["baseline"])
+    test = df[df.split == "test"]
+    dropped = [
+        T["by_source_dropped"].format(cls=N["classes"][c], src=N["sources"][s], n=num(n, lang, 0))
+        for s in srcs
+        for c, n in test[test.source == s].label.value_counts().items()
+        if c not in m["by_source"]["baseline"][s].get("classes", [c])
+    ]
+    intro = T["by_source_intro"].format(
+        min_rows=BY_SOURCE_MIN_ROWS, dropped="; ".join(dropped) or T["by_source_none"]
+    )
+    out += [f"### {T['by_source']}", "", intro, ""]
     head = [
         T["model"],
         *[f"{N['sources'][s]} (n = {num(m['by_source']['baseline'][s]['n'], lang, 0)})" for s in srcs],
@@ -397,7 +408,7 @@ def write_evaluation(corpus: str, R: dict, df: pd.DataFrame, lang: str) -> str:
 
     out += [f"## {T['ngrams']}", "", T["ngrams_intro"], ""]
     grams = R["baseline"]["top_ngrams"]
-    rows = [[N["classes"][c], " ".join(f"`{x.strip()}`" for x in grams[c][:10])] for c in CLASSES]
+    rows = [[N["classes"][c], " ".join(f"`{x}`" for x in grams[c][:10])] for c in CLASSES]
     out += [table([T["class"], T["ngrams_col"]], rows, "ll"), ""]
 
     out += [f"## {T['training']}", ""]
@@ -410,7 +421,7 @@ def write_evaluation(corpus: str, R: dict, df: pd.DataFrame, lang: str) -> str:
     out += [
         table([T["model"], T["device"], T["duration"], T["best_epoch"], T["val_history"]], rows, "lllrl"),
         "",
-        T["training_note"].format(C=R["baseline"]["C"]),
+        T["training_note"].format(C=num(R["baseline"]["C"], lang, 0 if R["baseline"]["C"] >= 1 else 1)),
         "",
     ]
     return "\n".join(out)

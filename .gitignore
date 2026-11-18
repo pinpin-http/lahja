@@ -10,3 +10,4 @@ logs/
 dist/
 *.part
 .ipynb_checkpoints/
+results/*/predictions/

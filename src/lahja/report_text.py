@@ -43,7 +43,9 @@ TEXT = {
         "cm_alt": "Confusion matrices",
         "cm_note": "Each row adds up to 100: the share of a true class sent to each predicted class.",
         "by_source": "Test score by corpus of origin",
-        "by_source_intro": "The test set mixes three corpora with very different registers. Macro-F1 over the classes each one contains:",
+        "by_source_dropped": "{cls} left out of {src}, {n} sentences",
+        "by_source_none": "no class left out",
+        "by_source_intro": "The test set mixes three corpora with very different registers. Macro-F1 over the classes that have at least {min_rows} test sentences in each corpus ({dropped}):",
         "by_source_note": (
             "FLORES-200 holds formal sentences translated from English Wikipedia, SADA holds TV dialogue, and Lahga "
             "holds short example sentences from a dictionary."
@@ -94,7 +96,7 @@ TEXT = {
             "extra forward pass per word, batched together. The threshold applies to the plain prediction."
         ),
         "ngrams": "What the baseline looks at",
-        "ngrams_intro": "Character n-grams with the largest logistic-regression weight for each class (spaces mark word edges).",
+        "ngrams_intro": "Character n-grams with the largest logistic-regression weight for each class, word edges removed and duplicates merged (`char_wb` n-grams carry the spaces around a word).",
         "ngrams_col": "n-grams",
         "training": "Training",
         "device": "device",
@@ -157,8 +159,8 @@ The full comparison with the other two models, the confusion matrices and the ca
 ## Known limitations
 
 - **Gulf mostly means Saudi Arabia.** Almost all Gulf training sentences are Saudi (table above). Emirati, Qatari, Kuwaiti, Bahraini and Omani speech is barely present, and the per-country version 2 will need other data.
-- **Iraq, Yemen, Sudan and Mauritania are out of scope.** Their dialects still get one of the five labels; Iraqi tends to land on Gulf or Levant.
-- **Register can stand in for dialect.** Each corpus has its own register: Gulf comes mostly from TV dialogue, Maghreb mostly from translated Wikipedia sentences. The model can learn part of the register instead of the dialect, and the tweet test shows the effect.
+- **Iraq, Yemen, Sudan and Mauritania are out of scope.** Their dialects still get one of the five labels, and no test set says which.
+- **Register can stand in for dialect.** Each corpus has its own register: Gulf comes mostly from TV dialogue, Maghreb mostly from translated Wikipedia sentences. The model learns part of the register instead of the dialect: in the SADA TV transcripts, many Levantine and Egyptian sentences are labelled Gulf, and so are many Maghrebi tweets (see the scores by corpus and the out-of-domain tests in the evaluation report).
 - **Short texts.** Under three words the answer is close to a guess, and the demo says so.
 - **Not supported**: mixed dialects, Arabizi (Arabic in Latin letters), code-switching. Latin letters are removed before the model sees the text.
 - **Formal Gulf and MSA** are hard to tell apart when the sentence has few dialect words.
@@ -213,7 +215,9 @@ FLORES-200 (Meta AI, CC BY-SA 4.0), SADA (SDAIA and SBA, CC BY-NC-SA 4.0), Lahga
         "cm_alt": "Matrices de confusion",
         "cm_note": "Chaque ligne fait 100 : la part d'une classe réelle envoyée vers chaque classe prédite.",
         "by_source": "Score en test selon le corpus d'origine",
-        "by_source_intro": "Le jeu de test mêle trois corpus de registres très différents. Macro-F1 sur les classes que contient chacun :",
+        "by_source_dropped": "{cls} écarté de {src}, {n} phrases",
+        "by_source_none": "aucune classe écartée",
+        "by_source_intro": "Le jeu de test mêle trois corpus de registres très différents. Macro-F1 sur les classes qui comptent au moins {min_rows} phrases de test dans chaque corpus ({dropped}) :",
         "by_source_note": (
             "FLORES-200 contient des phrases soutenues traduites de Wikipédia en anglais, SADA des dialogues "
             "d'émissions de télévision, Lahga de courtes phrases d'exemple tirées d'un dictionnaire."
@@ -266,7 +270,7 @@ FLORES-200 (Meta AI, CC BY-SA 4.0), SADA (SDAIA and SBA, CC BY-NC-SA 4.0), Lahga
             "passage de plus par mot, regroupés en un seul lot. Le seuil porte sur la prédiction seule."
         ),
         "ngrams": "Ce que regarde la référence",
-        "ngrams_intro": "N-grammes de caractères au plus fort poids dans la régression logistique, pour chaque classe (les espaces marquent les bords de mot).",
+        "ngrams_intro": "N-grammes de caractères au plus fort poids dans la régression logistique, pour chaque classe, bords de mot retirés et doublons fusionnés (les n-grammes `char_wb` portent les espaces autour du mot).",
         "ngrams_col": "n-grammes",
         "training": "Entraînement",
         "device": "matériel",
@@ -329,8 +333,8 @@ La comparaison complète avec les deux autres modèles, les matrices de confusio
 ## Limites connues
 
 - **Golfe veut surtout dire Arabie saoudite.** Presque toutes les phrases du Golfe à l'entraînement sont saoudiennes (tableau ci-dessus). Les parlers des Émirats, du Qatar, du Koweït, de Bahreïn et d'Oman sont à peine présents, et la version 2 par pays demandera d'autres données.
-- **L'Irak, le Yémen, le Soudan et la Mauritanie sont hors périmètre.** Leurs dialectes reçoivent quand même une des cinq étiquettes ; l'irakien tombe souvent sur Golfe ou Levant.
-- **Le registre peut se substituer au dialecte.** Chaque corpus a son registre : le Golfe vient surtout de dialogues télévisés, le Maghreb surtout de phrases de Wikipédia traduites. Le modèle peut apprendre une part du registre au lieu du dialecte, et le test sur les tweets mesure cet effet.
+- **L'Irak, le Yémen, le Soudan et la Mauritanie sont hors périmètre.** Leurs dialectes reçoivent quand même une des cinq étiquettes, et aucun jeu de test ne dit laquelle.
+- **Le registre peut se substituer au dialecte.** Chaque corpus a son registre : le Golfe vient surtout de dialogues télévisés, le Maghreb surtout de phrases de Wikipédia traduites. Le modèle apprend une part du registre au lieu du dialecte : dans les transcriptions télévisées de SADA, beaucoup de phrases levantines et égyptiennes sont classées Golfe, et c'est aussi le cas de nombreux tweets maghrébins (voir le score par corpus et les tests hors domaine dans le rapport d'évaluation).
 - **Textes courts.** En dessous de trois mots, la réponse tient presque du hasard, et la démo le signale.
 - **Non pris en charge** : les dialectes mélangés, l'arabizi (arabe en lettres latines), l'alternance avec une autre langue. Les lettres latines sont retirées avant que le modèle ne voie le texte.
 - **Golfe soutenu et arabe standard** se distinguent mal quand la phrase compte peu de mots dialectaux.

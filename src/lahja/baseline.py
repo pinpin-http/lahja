@@ -87,9 +87,10 @@ def top_ngrams(pipe: Pipeline, k: int = 15) -> dict[str, list[str]]:
     out = {}
     for i, c in enumerate(CLASSES):
         order = np.argsort(-coef[i])
-        # char_wb pads words with spaces; keep n-grams with at least two letters
-        grams = [g for g in vocab[order] if len(g.strip()) >= 2]
-        out[c] = grams[:k]
+        # char_wb pads words with spaces, so " ab", "ab " and " ab " are three features: list each
+        # form once, without the word edges, and keep those with at least two letters
+        grams = dict.fromkeys(g.strip() for g in vocab[order] if len(g.strip()) >= 2)
+        out[c] = list(grams)[:k]
     return out
 
 
