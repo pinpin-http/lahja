@@ -1,0 +1,52 @@
+[project]
+name = "lahja"
+version = "0.1.0"
+description = "Arabic dialect identification (Gulf, Levant, Egypt, Maghreb, MSA): data pipeline, fine-tuned models, ONNX demo"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi==0.163.2",
+    "matplotlib==3.11.2",
+    "numpy==2.5.5",
+    "onnxruntime==1.32.0",
+    "pandas==3.1.1",
+    "pyarrow==26.0.1",
+    "requests==2.34.2",
+    "scikit-learn==1.9.1",
+    "scipy==1.18.1",
+    "tokenizers==0.23.3",
+    "uvicorn==0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx==0.28.1",
+    "pytest==9.2.0",
+    "ruff==0.17.5",
+]
+train = [
+    "onnx==1.23.2",
+    "onnxscript==0.7.2",
+    "safetensors==0.8.0",
+    "torch==2.15.0",
+    "transformers==5.23.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lahja"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
