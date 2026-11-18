@@ -102,12 +102,6 @@ a { color: inherit; }
   box-shadow: 0 0 18px rgba(155, 114, 255, 0.55);
 }
 .top-right { display: flex; align-items: center; gap: 14px; }
-.status { display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--ink-3); }
-.status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); }
-.status[data-state="ready"] .dot { background: #5ee2a0; box-shadow: 0 0 10px #5ee2a0; }
-.status[data-state="waking"] .dot { background: var(--c-amber); animation: pulse 1.2s ease-in-out infinite; }
-.status[data-state="offline"] .dot { background: #ff6b6b; }
-@keyframes pulse { 50% { opacity: 0.25; } }
 .lang { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 255, 255, 0.03); }
 .lang button {
   border: 0; background: none; padding: 5px 12px; border-radius: 999px;
@@ -248,7 +242,6 @@ textarea::placeholder { color: var(--ink-4); }
   box-shadow: 0 0 14px rgba(155, 114, 255, 0.7);
   transition: width 0.3s ease;
 }
-.status[data-state="loading"] .dot { background: var(--c-violet); animation: pulse 1.2s ease-in-out infinite; }
 .note { margin: 16px 4px 0; text-align: center; font-size: 0.9rem; color: var(--ink-2); }
 
 .foot {
@@ -267,8 +260,7 @@ textarea::placeholder { color: var(--ink-4); }
 
 @media (max-width: 640px) {
   .top { padding: 16px 16px; }
-  .status #status-text { display: none; }
-  main { padding: 0 16px 32px; }
+    main { padding: 0 16px 32px; }
   .hero { padding: 3vh 0 26px; }
   .composer { padding: 18px 18px 12px; }
   .result { padding: 22px 18px 18px; }

@@ -11,7 +11,7 @@ const NBSP = " ";
 const I18N = {
   en: {
     classes: { gulf: "Gulf", levant: "Levant", egypt: "Egypt", maghreb: "Maghreb", msa: "Standard Arabic" },
-    lede: "Type a sentence in Arabic. Lahja tells you whether it sounds like the Gulf, the Levant, Egypt, the Maghreb or Modern Standard Arabic.",
+    lede: "Type a sentence in Arabic. Lahja guesses which region it comes from, or whether it is Modern Standard Arabic.",
     placeholder: "Type or paste a sentence in Arabic",
     examples: "Try",
     detected: "Detected dialect",
@@ -25,7 +25,6 @@ const I18N = {
     waking: "Waiting for the model…",
     downloading: (pct) => `Downloading the model (156${NBSP}MB, only the first time)… ${pct}${NBSP}%`,
     preparing: "Preparing the model…",
-    status: { ready: "Model ready", waking: "Connecting…", loading: "Loading model", offline: "Unavailable" },
     words: (n) => `${n} word${n === 1 ? "" : "s"}`,
     clear: "Clear",
     analyse: "Analyse",
@@ -35,7 +34,7 @@ const I18N = {
   },
   fr: {
     classes: { gulf: "Golfe", levant: "Levant", egypt: "Égypte", maghreb: "Maghreb", msa: "Arabe standard" },
-    lede: "Écrivez une phrase en arabe. Lahja dit si elle sonne comme le Golfe, le Levant, l'Égypte, le Maghreb ou l'arabe standard.",
+    lede: "Écrivez une phrase en arabe. Lahja devine de quelle région elle vient, ou si c'est de l'arabe standard.",
     placeholder: "Écrivez ou collez une phrase en arabe",
     examples: "Essayer",
     detected: "Dialecte détecté",
@@ -49,7 +48,6 @@ const I18N = {
     waking: "En attente du modèle…",
     downloading: (pct) => `Téléchargement du modèle (156${NBSP}Mo, la première fois seulement)… ${pct}${NBSP}%`,
     preparing: "Préparation du modèle…",
-    status: { ready: "Modèle prêt", waking: "Connexion…", loading: "Chargement", offline: "Indisponible" },
     words: (n) => `${n}${NBSP}mot${n > 1 ? "s" : ""}`,
     clear: "Effacer",
     analyse: "Analyser",
@@ -104,9 +102,6 @@ function setLang(l) {
 /* ---------- status ---------- */
 function setStatus(s) {
   state = s;
-  const t = I18N[lang];
-  $("status").dataset.state = s;
-  $("status-text").textContent = t.status[s] + (s === "loading" && progress !== null ? ` ${progress}${NBSP}%` : "");
 }
 
 function waiting() {
