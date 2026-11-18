@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lahja</title>
+  <meta name="description" content="Arabic dialect identification">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='%23fff' font-family='serif'%3E%D9%84%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>Lahja <span lang="ar" dir="rtl">لهجة</span></h1>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="fr">FR</button>
+    </div>
+  </header>
+
+  <main>
+    <textarea id="text" dir="rtl" lang="ar" rows="3" spellcheck="false" autocomplete="off" autofocus></textarea>
+    <nav id="examples"></nav>
+
+    <section id="result" hidden aria-live="polite">
+      <p class="top"><span id="label"></span><span id="conf"></span></p>
+      <ul id="bars"></ul>
+      <p id="words" dir="rtl" lang="ar"></p>
+    </section>
+    <p id="note" hidden></p>
+  </main>
+
+  <footer>
+    <a id="code" href="https://github.com/pinpin-http/lahja">GitHub</a>
+    <a id="card" href="https://github.com/pinpin-http/lahja/blob/main/docs/model_card.md"></a>
+  </footer>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
