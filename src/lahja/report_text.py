@@ -63,7 +63,7 @@ TEXT = {
         ),
         "ood_madar": "MADAR (CAMeL Lab), every city mapped to its class, all splits pooled.",
         "madar_missing": (
-            "MADAR is not part of this run: its licence requires a manual download (see the README). "
+            "MADAR is not part of this run: its licence requires a manual download (see the [full description](details.md#reproduce)). "
             "Once the files are in `data/raw/madar/`, `make evaluate` adds it here."
         ),
         "calibration": "Calibration",
@@ -237,8 +237,8 @@ FLORES-200 (Meta AI, CC BY-SA 4.0), SADA (SDAIA and SBA, CC BY-NC-SA 4.0), Lahga
         ),
         "ood_madar": "MADAR (CAMeL Lab), chaque ville rattachée à sa classe, toutes partitions confondues.",
         "madar_missing": (
-            "MADAR ne fait pas partie de cette exécution : sa licence impose un téléchargement manuel (voir le "
-            "README). Une fois les fichiers dans `data/raw/madar/`, `make evaluate` l'ajoute ici."
+            "MADAR ne fait pas partie de cette exécution : sa licence impose un téléchargement manuel (voir la "
+            "[description complète](details.fr.md#relancer)). Une fois les fichiers dans `data/raw/madar/`, `make evaluate` l'ajoute ici."
         ),
         "calibration": "Calibration",
         "calibration_intro": (

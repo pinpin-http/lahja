@@ -79,7 +79,7 @@ Tweets étiquetés par pays selon QADI (QCRI), 1 000 par classe, tirés au hasar
 
 ![Matrices de confusion](figures/confusion_tweets_fr.png)
 
-MADAR ne fait pas partie de cette exécution : sa licence impose un téléchargement manuel (voir le README). Une fois les fichiers dans `data/raw/madar/`, `make evaluate` l'ajoute ici.
+MADAR ne fait pas partie de cette exécution : sa licence impose un téléchargement manuel (voir la [description complète](details.fr.md#relancer)). Une fois les fichiers dans `data/raw/madar/`, `make evaluate` l'ajoute ici.
 
 ## Calibration
 

@@ -79,7 +79,7 @@ Tweets with QADI country labels (QCRI), 1,000 per class, drawn at random among t
 
 ![Confusion matrices](figures/confusion_tweets_en.png)
 
-MADAR is not part of this run: its licence requires a manual download (see the README). Once the files are in `data/raw/madar/`, `make evaluate` adds it here.
+MADAR is not part of this run: its licence requires a manual download (see the [full description](details.md#reproduce)). Once the files are in `data/raw/madar/`, `make evaluate` adds it here.
 
 ## Calibration
 

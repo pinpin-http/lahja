@@ -8,10 +8,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "dist" / "hub"
 LINKS = {
-    "en": "**Demo:** [lahja.soheib.fr](https://lahja.soheib.fr) · **API:** "
-    "[Space](https://huggingface.co/spaces/pinpin-http/lahja) · by [Soheib](https://soheib.fr)",
-    "fr": "**Démo :** [lahja.soheib.fr](https://lahja.soheib.fr) · **API :** "
-    "[Space](https://huggingface.co/spaces/pinpin-http/lahja) · par [Soheib](https://soheib.fr)",
+    "en": "**Demo:** [lahja.soheib.fr](https://lahja.soheib.fr) (the model runs in your browser) · "
+    "by [Soheib](https://soheib.fr)",
+    "fr": "**Démo :** [lahja.soheib.fr](https://lahja.soheib.fr) (le modèle tourne dans votre navigateur) · "
+    "par [Soheib](https://soheib.fr)",
 }
 
 

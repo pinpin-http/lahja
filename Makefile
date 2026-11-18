@@ -60,13 +60,21 @@ deploy-space: space
 	$(HF) repos create $(HF_USER)/lahja --repo-type space --space-sdk docker --exist-ok
 	$(HF) upload $(HF_USER)/lahja dist/space . --repo-type space
 
-# public page on Cloudflare: the same web app, calling the Space
-SPACE_URL ?= https://$(HF_USER)-lahja.hf.space
+# public page on Cloudflare: the same web app, which downloads the model from the Hub and runs it
+# in the browser with ONNX Runtime Web (self-hosted next to the page)
+MODEL_REVISION ?= a6ba3c5f93be0aa0e5a6b195f220ccdc98e5fd4c
+MODEL_URL ?= https://huggingface.co/$(HF_USER)/lahja/resolve/$(MODEL_REVISION)
+ORT_WEB ?= 1.31.1
 site:
-	rm -rf dist/site && mkdir -p dist/site/static
+	rm -rf dist/site && mkdir -p dist/site/static/ort dist/cache
+	test -f dist/cache/onnxruntime-web-$(ORT_WEB).tgz || \
+	  (cd dist/cache && npm pack --silent onnxruntime-web@$(ORT_WEB) >/dev/null)
+	tar -xzf dist/cache/onnxruntime-web-$(ORT_WEB).tgz -C dist/site/static/ort --strip-components=2 \
+	  package/dist/ort.wasm.min.mjs package/dist/ort-wasm-simd-threaded.mjs package/dist/ort-wasm-simd-threaded.wasm
 	cp src/lahja/web/*.js src/lahja/web/*.css src/lahja/web/*.json dist/site/static/
-	sed 's|<meta name="lahja-api" content="">|<meta name="lahja-api" content="$(SPACE_URL)">|' \
+	sed 's|<meta name="lahja-model" content="">|<meta name="lahja-model" content="$(MODEL_URL)">|' \
 	  src/lahja/web/index.html > dist/site/index.html
+	cp site/_headers dist/site/_headers
 	@echo "dist/site is ready"
 
 deploy-site: site

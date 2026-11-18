@@ -8,12 +8,13 @@
   <meta name="theme-color" content="#07070c">
   <meta property="og:title" content="Lahja · لهجة">
   <meta property="og:description" content="Arabic dialect identification: Gulf, Levant, Egypt, Maghreb, MSA.">
-  <!-- API base URL: empty when the page is served by the API itself, the Space URL elsewhere -->
-  <meta name="lahja-api" content="">
+  <!-- empty: the page calls the API that serves it; a URL: the browser downloads the model from there
+       and runs it itself (ONNX Runtime Web), as on the public page -->
+  <meta name="lahja-model" content="">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2334c3ff'/%3E%3Cstop offset='.5' stop-color='%239b72ff'/%3E%3Cstop offset='1' stop-color='%23f25ca8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='18' fill='%2307070c'/%3E%3Ccircle cx='32' cy='32' r='22' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200..600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200..600&display=swap" crossorigin="anonymous">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -80,6 +81,7 @@
 
     <section id="pending" class="result pending" hidden aria-live="polite">
       <div class="shimmer"></div><div class="shimmer short"></div><div class="shimmer"></div>
+      <div id="progress" class="progress" hidden><span id="progress-fill"></span></div>
       <p id="pending-text" class="hint"></p>
     </section>
 
@@ -88,7 +90,7 @@
     <section class="stats" aria-label="Model">
       <div class="stat"><span class="stat-value" data-i18n="statF1"></span><span class="stat-label" data-i18n="statF1Label"></span></div>
       <div class="stat"><span class="stat-value" data-i18n="statOod"></span><span class="stat-label" data-i18n="statOodLabel"></span></div>
-      <div class="stat"><span class="stat-value" data-i18n="statLatency"></span><span class="stat-label" data-i18n="statLatencyLabel"></span></div>
+      <div class="stat"><span class="stat-value" data-i18n="statLocal"></span><span class="stat-label" data-i18n="statLocalLabel"></span></div>
     </section>
 
     <section class="about">
@@ -99,10 +101,10 @@
 
   <footer class="foot">
     <a id="card" href="https://huggingface.co/pinpin-http/lahja" data-i18n="card"></a>
-    <a href="https://huggingface.co/spaces/pinpin-http/lahja">API</a>
+    <a href="https://huggingface.co/pinpin-http/lahja" data-i18n="hub">Hugging Face</a>
     <a class="me" href="https://soheib.fr">soheib.fr</a>
   </footer>
 
-  <script src="/static/app.js" defer></script>
+  <script type="module" src="/static/app.js"></script>
 </body>
 </html>
