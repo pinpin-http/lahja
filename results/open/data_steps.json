@@ -1,0 +1,23 @@
+{
+  "ingested": {
+    "corpus/flores200": 14063,
+    "corpus/lahga": 5161,
+    "corpus/sada": 253166,
+    "tweets/tweets": 147725
+  },
+  "mapped": {
+    "corpus/flores200": 14063,
+    "corpus/lahga": 4583,
+    "corpus/sada": 164529,
+    "tweets/tweets": 133291
+  },
+  "flores_najdi_copies_dropped": 1444,
+  "length_ok": {
+    "corpus/flores200": 12619,
+    "corpus/lahga": 3513,
+    "corpus/sada": 132356,
+    "tweets/tweets": 133285
+  },
+  "ambiguous_texts_dropped": 122,
+  "ood_overlap_dropped": 0
+}

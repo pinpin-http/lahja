@@ -1,0 +1,310 @@
+[
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "test",
+    "label": "egypt",
+    "n": 200
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "test",
+    "label": "gulf",
+    "n": 56
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "test",
+    "label": "levant",
+    "n": 401
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "test",
+    "label": "maghreb",
+    "n": 396
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "test",
+    "label": "msa",
+    "n": 195
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "train",
+    "label": "egypt",
+    "n": 1604
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "train",
+    "label": "gulf",
+    "n": 452
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "train",
+    "label": "levant",
+    "n": 3201
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "train",
+    "label": "maghreb",
+    "n": 3158
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "train",
+    "label": "msa",
+    "n": 1555
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "val",
+    "label": "egypt",
+    "n": 200
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "val",
+    "label": "gulf",
+    "n": 56
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "val",
+    "label": "levant",
+    "n": 401
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "val",
+    "label": "maghreb",
+    "n": 396
+  },
+  {
+    "set": "corpus",
+    "source": "flores200",
+    "split": "val",
+    "label": "msa",
+    "n": 195
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "test",
+    "label": "egypt",
+    "n": 24
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "test",
+    "label": "gulf",
+    "n": 24
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "test",
+    "label": "levant",
+    "n": 69
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "test",
+    "label": "maghreb",
+    "n": 45
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "test",
+    "label": "msa",
+    "n": 161
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "train",
+    "label": "egypt",
+    "n": 193
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "train",
+    "label": "gulf",
+    "n": 194
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "train",
+    "label": "levant",
+    "n": 550
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "train",
+    "label": "maghreb",
+    "n": 358
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "train",
+    "label": "msa",
+    "n": 1294
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "val",
+    "label": "egypt",
+    "n": 25
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "val",
+    "label": "gulf",
+    "n": 24
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "val",
+    "label": "levant",
+    "n": 69
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "val",
+    "label": "maghreb",
+    "n": 44
+  },
+  {
+    "set": "corpus",
+    "source": "lahga",
+    "split": "val",
+    "label": "msa",
+    "n": 161
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "test",
+    "label": "egypt",
+    "n": 310
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "test",
+    "label": "gulf",
+    "n": 572
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "test",
+    "label": "levant",
+    "n": 294
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "test",
+    "label": "maghreb",
+    "n": 2
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "train",
+    "label": "egypt",
+    "n": 1246
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "train",
+    "label": "gulf",
+    "n": 4852
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "train",
+    "label": "levant",
+    "n": 240
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "train",
+    "label": "maghreb",
+    "n": 26
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "val",
+    "label": "egypt",
+    "n": 91
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "val",
+    "label": "gulf",
+    "n": 576
+  },
+  {
+    "set": "corpus",
+    "source": "sada",
+    "split": "val",
+    "label": "levant",
+    "n": 180
+  },
+  {
+    "set": "tweets",
+    "source": "tweets",
+    "split": "ood",
+    "label": "egypt",
+    "n": 1000
+  },
+  {
+    "set": "tweets",
+    "source": "tweets",
+    "split": "ood",
+    "label": "levant",
+    "n": 1000
+  },
+  {
+    "set": "tweets",
+    "source": "tweets",
+    "split": "ood",
+    "label": "maghreb",
+    "n": 1000
+  }
+]
