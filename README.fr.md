@@ -4,7 +4,7 @@
 
 Lahja (لهجة, « dialecte ») lit un texte arabe court et dit de quelle région il vient : Golfe, Levant, Égypte, Maghreb ou arabe standard moderne. Le dépôt contient le pipeline de données, trois modèles (une référence en n-grammes de caractères et deux encodeurs BERT arabes affinés), leur évaluation, une API FastAPI et une démo web minimale en anglais et en français.
 
-État au 18 novembre 2026 : le pipeline de données, la référence, l'export, l'évaluation, l'API, la démo et les tests sont écrits et passent une exécution de bout en bout. Les deux modèles affinés restent à entraîner sur une machine avec GPU. D'ici là, seule la référence a été mesurée.
+État au 18 novembre 2026 : le pipeline a tourné en entier, des téléchargements à la publication. Les deux encodeurs ont été affinés sur un GPU AMD, MARBERT a été retenu en validation et sa version quantifiée tient les trois seuils de publication (80,4 % de macro-F1 en test, contre 70,8 % pour la référence). Il reste à mettre la démo en ligne sur un Space Hugging Face.
 
 ## La tâche
 
@@ -73,9 +73,22 @@ La mesure principale est la macro-F1 sur le jeu de test. Le rapport donne aussi 
 | perte due à la quantification | au plus 1 point de macro-F1 |
 | latence de la démo, 95e centile | moins de 300 ms par phrase sur CPU |
 
-### Mesuré à ce jour
+### Résultats
 
-La référence (C = 10, choisi en validation) atteint 70,9 % de macro-F1 en test (69,6 % d'exactitude) et 58,8 % sur les tweets. Ses erreurs penchent d'un côté : elle envoie beaucoup de phrases familières vers le Golfe, dont 431 des 1 000 tweets maghrébins. La plupart des phrases du Golfe à l'entraînement sont des dialogues télévisés, alors que celles du Maghreb et de l'arabe standard sont surtout des phrases de Wikipédia traduites ; pour ce modèle, le registre est un indice fort. Les modèles affinés diront quelle part de ce biais ils reprennent.
+Jeu de test (2 749 phrases) et tweets hors domaine (3 000), macro-F1 et exactitude en % :
+
+| Modèle | macro-F1 test | macro-F1 tweets | exactitude test |
+|---|---:|---:|---:|
+| n-grammes + régression logistique (C = 10) | 70,8 | 58,7 | 69,6 |
+| CAMeLBERT-DA | 78,1 | 70,8 | 76,7 |
+| MARBERT | 80,8 | 78,7 | 79,6 |
+| MARBERT, ONNX int8 (servi par la démo) | 80,4 | 78,5 | 79,2 |
+
+MARBERT l'emporte en validation (84,0 contre 81,3 pour CAMeLBERT-DA), c'est donc lui que sert la démo. Les trois seuils sont tenus : 10,0 points de gain sur la référence, 0,32 point perdu à la quantification et 24 ms au 95e centile à travers l'API, sur 2 threads d'un Ryzen 5 5600G. Sur trois graines, MARBERT fait 80,7 ± 0,3 en test et 76,3 ± 2,4 sur les tweets. La graine 13, celle du modèle publié, est la meilleure des trois sur les tweets : la moyenne donne une idée plus juste de ce qu'on peut attendre hors domaine.
+
+Les erreurs se concentrent à un endroit. MARBERT atteint 84,7 de macro-F1 sur FLORES, mais 64,2 sur les dialogues télévisés de SADA, où il classe Golfe 45 % des phrases levantines et 29 % des égyptiennes. Les phrases courtes y sont pour quelque chose : 4 phrases levantines ou égyptiennes de SADA sur 10 font 5 mots ou moins. Mais au-delà de 20 mots, le quart part encore vers le Golfe, contre aucune dans FLORES. À l'entraînement, trois phrases de SADA sur quatre sont du Golfe, et le modèle a appris qu'un dialogue d'émission saoudienne vient le plus souvent de là. Le même biais touche les tweets maghrébins : MARBERT en envoie 285 sur 1 000 vers le Golfe, la référence 434. Dans FLORES, la confusion la plus fréquente est d'une autre nature : 23 des 56 phrases najdies du test sont prises pour de l'arabe standard, parce que ces traductions restent proches de la phrase source.
+
+Le détail (scores par classe, matrices de confusion, calibration, latence) est dans le [rapport d'évaluation](docs/evaluation.fr.md).
 
 ## Démo et API
 
@@ -91,22 +104,24 @@ curl -s localhost:8000/predict -H 'Content-Type: application/json' \
 ```
 
 ```json
-{"label": "levant", "probabilities": {"gulf": 0.02, "levant": 0.95, "egypt": 0.01, "maghreb": 0.01, "msa": 0.01},
- "n_words": 4, "in_scope": true, "words": [{"word": "شو", "weight": 0.31}, ...]}
+{"label": "levant", "probabilities": {"gulf": 0.0343, "levant": 0.9108, "egypt": 0.0382, "maghreb": 0.0089, "msa": 0.0079},
+ "n_words": 4, "in_scope": true,
+ "words": [{"word": "شو", "weight": -0.014}, {"word": "عم", "weight": 0.0577}, {"word": "تعمل", "weight": 0.0056}, {"word": "هلق؟", "weight": 0.2743}]}
 ```
 
-(Format de la réponse ; les nombres sont donnés pour l'exemple.) Un texte sans lettre arabe reçoit une erreur 422, et `in_scope` vaut `false` en dehors de 3 à 60 mots.
+Un texte sans lettre arabe reçoit une erreur 422, et `in_scope` vaut `false` en dehors de 3 à 60 mots. Quand plusieurs mots désignent le même dialecte, en retirer un seul change peu la probabilité : l'influence d'un mot est alors faible même s'il est typique. Ce calcul demande un passage du modèle par mot : sur 2 threads, une requête avec `explain` prend 100 ms en médiane et 0,6 s au 95e centile, contre 12 et 24 ms sans.
 
 `make space` prépare un dossier prêt à pousser sur un Space Hugging Face de type Docker (`space/Dockerfile`).
 
 ## Relancer
 
 ```bash
-make install   # uv, Python 3.12, dépendances figées, PyTorch compris
-make all       # données, référence, affinage, graines supplémentaires, export ONNX, évaluation, rapport, publication
+make install                   # uv, Python 3.12, dépendances figées, PyTorch pour GPU NVIDIA (CUDA 13.2)
+make install TRAIN=train-rocm  # ou PyTorch pour GPU AMD (ROCm 7.2)
+make all                       # données, référence, affinage, graines supplémentaires, export ONNX, évaluation, rapport, publication
 ```
 
-L'affinage demande un GPU NVIDIA ; la roue PyTorch figée est compilée pour CUDA 13.2, le pilote doit donc la prendre en charge. Tout le reste tourne sur le CPU d'un portable. Chaque étape se lance seule (`make data`, `make baseline`, `make finetune`, `make seeds`, `make export`, `make evaluate`, `make report`, `make publish`), et chaque étape de données écrit un fichier Parquet dans `data/interim/`. `results/open/split_fingerprint.txt` contient une empreinte du contenu du découpage : une machine qui affiche la même valeur a reconstruit le même découpage.
+L'affinage demande un GPU. Avec une carte NVIDIA, le pilote doit prendre en charge CUDA 13.2, pour lequel la roue PyTorch figée est compilée. Avec une carte AMD, le groupe `train-rocm` prend la roue ROCm 7.2 de PyTorch 2.14.1 (l'index ROCm ne propose pas la 2.15.0) ; PyTorch y présente la carte comme un périphérique `cuda`, sans autre changement. Les modèles publiés ont été affinés ainsi, sur une Radeon RX 9060 XT (16 Go) en bf16 : 2 min 20 s pour CAMeLBERT-DA, 3 min 30 s pour MARBERT, 18 min pour les six exécutions avec les graines supplémentaires. Tout le reste tourne sur le CPU d'un portable. Chaque étape se lance seule (`make data`, `make baseline`, `make finetune`, `make seeds`, `make export`, `make evaluate`, `make report`, `make publish`), et chaque étape de données écrit un fichier Parquet dans `data/interim/`. `results/open/split_fingerprint.txt` contient une empreinte du contenu du découpage : une machine qui affiche la même valeur a reconstruit le même découpage. La machine d'affinage a retrouvé la valeur obtenue sur le portable où le pipeline a été écrit ; la référence y a bougé d'un dixième de point (70,8 au lieu de 70,9 en test), un écart de calcul flottant d'un processeur à l'autre.
 
 Pour la piste MADAR, il faut demander le corpus sur la [page du CAMeL Lab](https://camel.abudhabi.nyu.edu/madar-parallel-corpus/), le décompresser dans `data/raw/madar/`, puis lancer `make all CORPUS=madar`. La licence autorise les résultats de recherche mais pas le modèle, et `make publish` s'arrête là. Une fois les fichiers en place, `make evaluate` sur le corpus ouvert note aussi le modèle public sur MADAR.
 
@@ -115,7 +130,7 @@ Pour la piste MADAR, il faut demander le corpus sur la [page du CAMeL Lab](https
 ## Limites
 
 - Golfe veut surtout dire Arabie saoudite. Presque toutes les phrases du Golfe à l'entraînement sont saoudiennes ; les parlers des Émirats, du Qatar, du Koweït, de Bahreïn et d'Oman sont à peine là. La version 2, avec une classe par pays du Golfe, demandera d'autres données.
-- Chaque corpus a son registre, si bien que les modèles peuvent apprendre le registre au lieu du dialecte, comme le fait déjà la référence.
+- Chaque corpus a son registre, si bien que les modèles apprennent une part du registre au lieu du dialecte : beaucoup pour la référence, moins pour MARBERT, mais encore nettement sur les dialogues de SADA et les tweets maghrébins (voir [Résultats](#résultats)).
 - Les tweets hors domaine n'ont pas de classe Golfe, et leur étiquette est le pays de l'auteur, pas une lecture du texte.
 - Un texte irakien, yéménite ou soudanais reçoit quand même une des cinq étiquettes.
 - En dessous de trois mots, la prédiction tient presque du hasard.

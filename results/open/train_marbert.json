@@ -1,0 +1,51 @@
+{
+  "model": "marbert",
+  "base": "UBC-NLP/MARBERT",
+  "revision": "88e1fa192dd723cf0b3563500aec46209762eb22",
+  "classes": [
+    "gulf",
+    "levant",
+    "egypt",
+    "maghreb",
+    "msa"
+  ],
+  "max_len": 128,
+  "temperature": 1.6577,
+  "normalization": "lahja.normalize v1",
+  "seed": 13,
+  "device": "AMD Radeon Graphics (gfx1200, ROCm 7.2)",
+  "precision": "bfloat16",
+  "versions": {
+    "torch": "2.14.1+rocm7.2",
+    "transformers": "5.23.0"
+  },
+  "n_train": 18923,
+  "epochs": 3,
+  "best_epoch": 3,
+  "history": [
+    {
+      "epoch": 1,
+      "val_macro_f1": 0.8205,
+      "seconds": 58
+    },
+    {
+      "epoch": 2,
+      "val_macro_f1": 0.8242,
+      "seconds": 55
+    },
+    {
+      "epoch": 3,
+      "val_macro_f1": 0.8392,
+      "seconds": 97
+    }
+  ],
+  "train_seconds": 212,
+  "hyperparameters": {
+    "batch": 32,
+    "lr": 3e-05,
+    "warmup": 0.06,
+    "weight_decay": 0.01,
+    "optimizer": "AdamW",
+    "loss": "cross-entropy with inverse-frequency class weights"
+  }
+}

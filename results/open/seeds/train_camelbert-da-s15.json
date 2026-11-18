@@ -1,0 +1,51 @@
+{
+  "model": "camelbert-da",
+  "base": "CAMeL-Lab/bert-base-arabic-camelbert-da",
+  "revision": "231698eab9ebf0ae7b518a64277b81b2fe829f2d",
+  "classes": [
+    "gulf",
+    "levant",
+    "egypt",
+    "maghreb",
+    "msa"
+  ],
+  "max_len": 128,
+  "temperature": 1.7057,
+  "normalization": "lahja.normalize v1",
+  "seed": 15,
+  "device": "AMD Radeon Graphics (gfx1200, ROCm 7.2)",
+  "precision": "bfloat16",
+  "versions": {
+    "torch": "2.14.1+rocm7.2",
+    "transformers": "5.23.0"
+  },
+  "n_train": 18923,
+  "epochs": 3,
+  "best_epoch": 3,
+  "history": [
+    {
+      "epoch": 1,
+      "val_macro_f1": 0.8023,
+      "seconds": 45
+    },
+    {
+      "epoch": 2,
+      "val_macro_f1": 0.8183,
+      "seconds": 44
+    },
+    {
+      "epoch": 3,
+      "val_macro_f1": 0.8219,
+      "seconds": 44
+    }
+  ],
+  "train_seconds": 134,
+  "hyperparameters": {
+    "batch": 32,
+    "lr": 3e-05,
+    "warmup": 0.06,
+    "weight_decay": 0.01,
+    "optimizer": "AdamW",
+    "loss": "cross-entropy with inverse-frequency class weights"
+  }
+}

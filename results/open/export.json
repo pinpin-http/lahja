@@ -1,0 +1,13 @@
+{
+  "selected": "marbert",
+  "val_macro_f1": {
+    "camelbert-da": 0.8133,
+    "marbert": 0.8398
+  },
+  "onnx_mb": {
+    "model.fp32.onnx": 621.4,
+    "model.fp32.opt.onnx": 621.2,
+    "model.int8.onnx": 155.8
+  },
+  "opset": 17
+}

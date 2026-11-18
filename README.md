@@ -4,7 +4,7 @@
 
 Lahja (لهجة, "dialect") reads a short Arabic text and says which region it comes from: the Gulf, the Levant, Egypt, the Maghreb, or Modern Standard Arabic (MSA). The repository holds the data pipeline, three models (a character n-gram baseline and two fine-tuned Arabic BERT encoders), their evaluation, a FastAPI service and a minimal web demo in English and French.
 
-Status on 18 November 2026: the data pipeline, the baseline, the export, the evaluation, the API, the demo and the tests are written and pass an end-to-end run. The two fine-tuned models still have to be trained on a GPU machine. Until then, the only measured model is the baseline.
+Status on 18 November 2026: the whole pipeline has run, from the downloads to the publication. Both encoders were fine-tuned on an AMD GPU, MARBERT was picked on validation, and its quantised version meets the three publication thresholds (test macro-F1 of 80.4 %, against 70.8 % for the baseline). What remains is putting the demo online on a Hugging Face Space.
 
 ## Task
 
@@ -73,9 +73,22 @@ The main metric is macro-F1 on the test set. The report also gives precision and
 | loss from quantisation | at most 1 point of macro-F1 |
 | demo latency, 95th percentile | under 300 ms per sentence on CPU |
 
-### Measured so far
+### Results
 
-The baseline (C = 10, chosen on validation) reaches a test macro-F1 of 70.9 % (accuracy 69.6 %) and 58.8 % on the tweets. Its errors lean one way: it sends many casual sentences to Gulf, including 431 of the 1,000 Maghrebi tweets. Most Gulf training sentences are TV dialogue, while most Maghrebi and MSA ones are translated Wikipedia sentences, so register is a strong cue for this model. The fine-tuned models will show how much of that they inherit.
+Test set (2,749 sentences) and out-of-domain tweets (3,000), macro-F1 and accuracy in %:
+
+| Model | test macro-F1 | tweets macro-F1 | test accuracy |
+|---|---:|---:|---:|
+| char n-grams + logistic regression (C = 10) | 70.8 | 58.7 | 69.6 |
+| CAMeLBERT-DA | 78.1 | 70.8 | 76.7 |
+| MARBERT | 80.8 | 78.7 | 79.6 |
+| MARBERT, ONNX int8 (served by the demo) | 80.4 | 78.5 | 79.2 |
+
+MARBERT wins on validation (84.0 against 81.3 for CAMeLBERT-DA), so it is the model the demo serves. All three thresholds hold: a 10.0-point gain over the baseline, 0.32 point lost to quantisation, and 24 ms at the 95th percentile through the API on 2 threads of a Ryzen 5 5600G. Over three seeds, MARBERT scores 80.7 ± 0.3 on the test set and 76.3 ± 2.4 on the tweets. Seed 13, the published model, is the best of the three on the tweets, so the mean is the fairer guide to what to expect out of domain.
+
+The errors sit in one place. MARBERT reaches a macro-F1 of 84.7 on FLORES but 64.2 on the SADA TV dialogue, where it labels 45 % of the Levantine sentences and 29 % of the Egyptian ones as Gulf. Short sentences play a part: 4 in 10 Levantine or Egyptian SADA sentences have 5 words or fewer. But above 20 words, a quarter still go to Gulf, against none in FLORES. Three in four SADA training sentences are Gulf, and the model has learned that dialogue from a Saudi TV show is usually Gulf. The same bias reaches the Maghrebi tweets: MARBERT sends 285 of 1,000 to Gulf, the baseline 434. In FLORES the most frequent confusion is of another kind: 23 of the 56 Najdi test sentences are taken for MSA, because those translations stay close to the source sentence.
+
+The details (per-class scores, confusion matrices, calibration, latency) are in the [evaluation report](docs/evaluation.md).
 
 ## Demo and API
 
@@ -91,22 +104,24 @@ curl -s localhost:8000/predict -H 'Content-Type: application/json' \
 ```
 
 ```json
-{"label": "levant", "probabilities": {"gulf": 0.02, "levant": 0.95, "egypt": 0.01, "maghreb": 0.01, "msa": 0.01},
- "n_words": 4, "in_scope": true, "words": [{"word": "شو", "weight": 0.31}, ...]}
+{"label": "levant", "probabilities": {"gulf": 0.0343, "levant": 0.9108, "egypt": 0.0382, "maghreb": 0.0089, "msa": 0.0079},
+ "n_words": 4, "in_scope": true,
+ "words": [{"word": "شو", "weight": -0.014}, {"word": "عم", "weight": 0.0577}, {"word": "تعمل", "weight": 0.0056}, {"word": "هلق؟", "weight": 0.2743}]}
 ```
 
-(Example of the response format; the numbers are illustrative.) A text with no Arabic letters gets a 422. `in_scope` is false outside 3 to 60 words.
+A text with no Arabic letters gets a 422. `in_scope` is false outside 3 to 60 words. When several words point to the same dialect, removing one of them barely moves the probability, so a typical word can still get a small weight. The computation takes one model pass per word: on 2 threads, a request with `explain` takes 100 ms at the median and 0.6 s at the 95th percentile, against 12 and 24 ms without.
 
 `make space` assembles a folder ready to push to a Hugging Face Docker Space (`space/Dockerfile`).
 
 ## Reproduce
 
 ```bash
-make install   # uv, Python 3.12, pinned dependencies, PyTorch included
-make all       # data, baseline, fine-tuning, extra seeds, ONNX export, evaluation, report, publication
+make install                   # uv, Python 3.12, pinned dependencies, PyTorch for an NVIDIA GPU (CUDA 13.2)
+make install TRAIN=train-rocm  # or PyTorch for an AMD GPU (ROCm 7.2)
+make all                       # data, baseline, fine-tuning, extra seeds, ONNX export, evaluation, report, publication
 ```
 
-Fine-tuning needs an NVIDIA GPU; the pinned PyTorch wheel is built for CUDA 13.2, so the driver must support it. Everything else runs on a laptop CPU. Each step can be run alone (`make data`, `make baseline`, `make finetune`, `make seeds`, `make export`, `make evaluate`, `make report`, `make publish`), and each data step writes a Parquet file in `data/interim/`. `results/open/split_fingerprint.txt` holds a hash of the split's content: a machine that prints the same value has rebuilt the same split.
+Fine-tuning needs a GPU. With an NVIDIA card, the driver must support CUDA 13.2, which the pinned PyTorch wheel is built for. With an AMD card, the `train-rocm` group takes the ROCm 7.2 wheel of PyTorch 2.14.1 (the ROCm index has no 2.15.0); PyTorch exposes the card as a `cuda` device, and nothing else changes. The published models were fine-tuned this way, on a Radeon RX 9060 XT (16 GB) in bf16: 2 min 20 s for CAMeLBERT-DA, 3 min 30 s for MARBERT, 18 min for all six runs including the extra seeds. Everything else runs on a laptop CPU. Each step can be run alone (`make data`, `make baseline`, `make finetune`, `make seeds`, `make export`, `make evaluate`, `make report`, `make publish`), and each data step writes a Parquet file in `data/interim/`. `results/open/split_fingerprint.txt` holds a hash of the split's content: a machine that prints the same value has rebuilt the same split. The fine-tuning machine got the same value as the laptop the pipeline was written on; the baseline moved there by a tenth of a point (70.8 instead of 70.9 on the test set), a floating-point difference from one CPU to another.
 
 For the MADAR track, request the corpus through the [CAMeL Lab page](https://camel.abudhabi.nyu.edu/madar-parallel-corpus/), unzip it into `data/raw/madar/`, then run `make all CORPUS=madar`. The licence allows research results but not the model, so `make publish` stops there. With the files in place, `make evaluate` on the open corpus also scores the public model on MADAR.
 
@@ -115,7 +130,7 @@ For the MADAR track, request the corpus through the [CAMeL Lab page](https://cam
 ## Limitations
 
 - Gulf mostly means Saudi Arabia. Nearly every Gulf training sentence is Saudi, and Emirati, Qatari, Kuwaiti, Bahraini and Omani speech is barely there. The per-country version 2 will need other data.
-- Each corpus has its own register, so the models can learn register instead of dialect, as the baseline already does.
+- Each corpus has its own register, so the models learn part of the register instead of the dialect: the baseline a lot, MARBERT less, but still visibly on the SADA dialogue and the Maghrebi tweets (see [Results](#results)).
 - The out-of-domain tweets have no Gulf class, and their labels are the author's country rather than a reading of the text.
 - Iraqi, Yemeni and Sudanese text still receives one of the five labels.
 - Under three words, a prediction is close to a guess.

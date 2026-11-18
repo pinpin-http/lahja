@@ -1,0 +1,16 @@
+{
+  "thresholds": {
+    "min_gain_points": 5.0,
+    "max_quantization_loss_points": 1.0,
+    "max_p95_ms": 300.0
+  },
+  "gain_points": 10.03,
+  "quantization_loss_points": 0.32,
+  "p95_ms": 24.0,
+  "checks": {
+    "gain": true,
+    "quantization": true,
+    "latency": true
+  },
+  "passed": true
+}
