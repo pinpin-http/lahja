@@ -25,13 +25,29 @@ dev = [
     "pytest==9.2.0",
     "ruff==0.17.5",
 ]
-train = [
+# Training: `train` for an NVIDIA GPU (PyTorch wheel from PyPI, CUDA 13.2), `train-rocm` for an AMD GPU
+# (ROCm 7.2 wheel; the ROCm index has no 2.15.0, hence 2.14.1). The two cannot be installed together.
+train-common = [
     "onnx==1.23.2",
     "onnxscript==0.7.2",
     "safetensors==0.8.0",
-    "torch==2.15.0",
     "transformers==5.23.0",
 ]
+train = [{ include-group = "train-common" }, "torch==2.15.0"]
+# triton-rocm (a dependency of torch+rocm) only exists on the ROCm index: declared here to give it that source
+train-rocm = [{ include-group = "train-common" }, "torch==2.14.1", "triton-rocm==3.8.0; sys_platform == 'linux'"]
+
+[tool.uv]
+conflicts = [[{ group = "train" }, { group = "train-rocm" }]]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-rocm", group = "train-rocm" }]
+triton-rocm = [{ index = "pytorch-rocm", group = "train-rocm" }]
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm7.2"
+explicit = true
 
 [build-system]
 requires = ["hatchling"]

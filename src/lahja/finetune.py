@@ -1,6 +1,6 @@
 """Fine-tune a pre-trained Arabic encoder (CAMeLBERT-DA or MARBERT) on the five classes.
 
-Meant for a GPU (a cloud instance; Colab or Kaggle work too). Standard recipe: full
+Meant for a GPU: NVIDIA (CUDA) or AMD (ROCm, which PyTorch exposes as "cuda"). Standard recipe: full
 fine-tuning with AdamW, linear warm-up then decay, mixed precision (bf16 where the GPU
 supports it, fp16 otherwise), cross-entropy weighted by inverse class frequency.
 `--seed` trains extra runs whose test scores give the spread between seeds; only the main
@@ -80,6 +80,19 @@ def autocast_for(device):
         return None, nullcontext
     dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
     return dtype, lambda: torch.autocast("cuda", dtype=dtype)
+
+
+def device_name(device) -> str:
+    import torch
+
+    if device.type != "cuda":
+        return "cpu"
+    name = torch.cuda.get_device_name(device)
+    if torch.version.hip:  # ROCm often reports a generic name: the architecture says which chip ran
+        arch = torch.cuda.get_device_properties(device).gcnArchName.split(":")[0]
+        rocm = ".".join(torch.version.hip.split(".")[:2])
+        name += f" ({arch}, ROCm {rocm})"
+    return name
 
 
 def predict_logits(model, ids: list[list[int]], pad_id: int, device) -> np.ndarray:
@@ -223,7 +236,7 @@ def train(
     info = {
         **meta,
         "seed": seed,
-        "device": torch.cuda.get_device_name(0) if device.type == "cuda" else "cpu",
+        "device": device_name(device),
         "precision": str(amp_dtype).replace("torch.", "") if amp_dtype else "float32",
         "versions": {"torch": torch.__version__, "transformers": transformers.__version__},
         "n_train": len(ids_tr),

@@ -1,5 +1,6 @@
 # Lahja. `make all` goes from the downloads to the published model.
 # Everything runs on a laptop CPU except `finetune` and `seeds`, which want a GPU.
+# `make install` takes the PyTorch build for NVIDIA (CUDA 13.2); `make install TRAIN=train-rocm` the AMD one (ROCm 7.2).
 export OMP_NUM_THREADS ?= 2
 export MPLBACKEND = Agg
 
@@ -8,12 +9,13 @@ RUN ?= uv run python -m lahja
 LAHJA = $(RUN) --corpus $(CORPUS)
 MODELS_FT = camelbert-da marbert
 SEEDS ?= 14 15
+TRAIN ?= train
 
 .PHONY: install data ingest normalize label split baseline finetune seeds export evaluate report publish \
         all serve test lint space clean
 
 install:
-	uv sync --frozen --group train --group dev
+	uv sync --frozen --group $(TRAIN) --group dev
 
 data:
 	$(LAHJA) data
