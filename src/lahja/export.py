@@ -46,7 +46,9 @@ def run(corpus: str) -> dict:
         shutil.rmtree(out)
     out.mkdir(parents=True)
 
-    model = AutoModelForSequenceClassification.from_pretrained(src).eval()
+    # eager attention: the graph traced from SDPA does not match ONNX Runtime's attention fusion
+    # patterns, and the unfused model is about twice as slow on 2 CPU threads
+    model = AutoModelForSequenceClassification.from_pretrained(src, attn_implementation="eager").eval()
     model.config.return_dict = False
     tok = AutoTokenizer.from_pretrained(src)
     sample = tok(["هذا مثال قصير", "جملة ثانية أطول قليلا من الأولى"], padding=True, return_tensors="pt")
