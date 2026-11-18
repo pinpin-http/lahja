@@ -11,3 +11,5 @@ dist/
 *.part
 .ipynb_checkpoints/
 results/*/predictions/
+.wrangler/
+node_modules/

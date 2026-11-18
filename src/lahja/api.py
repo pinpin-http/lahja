@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -47,6 +48,14 @@ def get_model() -> DialectModel:
 
 
 app = FastAPI(title="Lahja", version=__version__, docs_url="/docs", redoc_url=None)
+# the public page lives on another origin (Cloudflare) and calls this API from the browser
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in os.environ.get("LAHJA_CORS_ORIGINS", "*").split(",") if o.strip()],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+    max_age=86400,
+)
 app.mount("/static", StaticFiles(directory=WEB), name="static")
 
 

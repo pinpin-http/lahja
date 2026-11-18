@@ -12,7 +12,7 @@ SEEDS ?= 14 15
 TRAIN ?= train
 
 .PHONY: install data ingest normalize label split baseline finetune seeds export evaluate report publish \
-        all serve test lint space clean
+        all serve test lint hub space deploy-space site deploy-site clean
 
 install:
 	uv sync --frozen --group $(TRAIN) --group dev
@@ -40,13 +40,37 @@ test:
 lint:
 	uv run ruff check src tests
 
-# folder ready to push to a Hugging Face Docker Space
+HF_USER ?= pinpin-http
+HF = uvx --from huggingface_hub hf
+
+# Hugging Face model repo: quantised model, tokenizer, model card, evaluation report
+hub:
+	python3 -I space/build_hub.py
+	$(HF) repos create $(HF_USER)/lahja --repo-type model --exist-ok
+	$(HF) upload $(HF_USER)/lahja dist/hub . --repo-type model
+
+# Hugging Face Docker Space serving the API; it downloads the model from the model repo
 space:
-	rm -rf dist/space && mkdir -p dist/space/models
+	rm -rf dist/space && mkdir -p dist/space
 	git archive HEAD pyproject.toml uv.lock README.md src | tar -x -C dist/space
 	cp space/Dockerfile dist/space/Dockerfile && cp space/README.md dist/space/README.md
-	cp -r models/release dist/space/models/release
 	@echo "dist/space is ready"
+
+deploy-space: space
+	$(HF) repos create $(HF_USER)/lahja --repo-type space --space-sdk docker --exist-ok
+	$(HF) upload $(HF_USER)/lahja dist/space . --repo-type space
+
+# public page on Cloudflare: the same web app, calling the Space
+SPACE_URL ?= https://$(HF_USER)-lahja.hf.space
+site:
+	rm -rf dist/site && mkdir -p dist/site/static
+	cp src/lahja/web/*.js src/lahja/web/*.css src/lahja/web/*.json dist/site/static/
+	sed 's|<meta name="lahja-api" content="">|<meta name="lahja-api" content="$(SPACE_URL)">|' \
+	  src/lahja/web/index.html > dist/site/index.html
+	@echo "dist/site is ready"
+
+deploy-site: site
+	cd site && npx --yes wrangler@4 deploy
 
 clean:
 	rm -rf data/interim models results/$(CORPUS)

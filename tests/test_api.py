@@ -88,3 +88,16 @@ def test_released_model_end_to_end():
     assert body["label"] in CLASSES
     assert abs(sum(body["probabilities"].values()) - 1) < 1e-3
     assert len(body["words"]) == 6
+
+
+def test_cors_preflight(client):
+    r = client.options(
+        "/predict",
+        headers={
+            "Origin": "https://lahja.soheib.fr",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert r.status_code == 200
+    assert r.headers["access-control-allow-origin"] in ("*", "https://lahja.soheib.fr")

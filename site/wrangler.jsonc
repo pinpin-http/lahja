@@ -1,0 +1,7 @@
+{
+  // Public page: static files built by `make site`, served by Cloudflare. It calls the API on the Space.
+  "name": "lahja",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "../dist/site" },
+  "routes": [{ "pattern": "lahja.soheib.fr", "custom_domain": true }]
+}
