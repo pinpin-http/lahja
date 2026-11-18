@@ -11,7 +11,6 @@ const NBSP = " ";
 const I18N = {
   en: {
     classes: { gulf: "Gulf", levant: "Levant", egypt: "Egypt", maghreb: "Maghreb", msa: "Standard Arabic" },
-    eyebrow: "Arabic dialect identification",
     lede: "Type a sentence in Arabic. Lahja tells you whether it sounds like the Gulf, the Levant, Egypt, the Maghreb or Modern Standard Arabic.",
     placeholder: "Type or paste a sentence in Arabic",
     examples: "Try",
@@ -30,26 +29,12 @@ const I18N = {
     words: (n) => `${n} word${n === 1 ? "" : "s"}`,
     clear: "Clear",
     analyse: "Analyse",
-    statF1Browser: `80.1${NBSP}%`,
-    statF1Api: `80.4${NBSP}%`,
-    statF1Label: "macro-F1 on 2,749 test sentences",
-    statOodBrowser: `78.7${NBSP}%`,
-    statOodApi: `78.5${NBSP}%`,
-    statOodLabel: "macro-F1 on 3,000 tweets never seen in training",
-    statLocalBrowser: `0${NBSP}bytes`,
-    statLocalLabelBrowser: "of your text sent anywhere: the model runs in your browser",
-    statLocalApi: `24${NBSP}ms`,
-    statLocalLabelApi: "per sentence on 2 CPU threads (95th percentile)",
-    aboutBrowser: "A MARBERT encoder fine-tuned on three openly licensed corpora (FLORES-200, SADA, Lahga) and quantised to 8-bit integers. Your browser downloads it from Hugging Face once, keeps it in its cache and runs it with ONNX Runtime Web. Highlighted words are the ones whose removal lowers the prediction most.",
-    aboutApi: "A MARBERT encoder fine-tuned on three openly licensed corpora (FLORES-200, SADA, Lahga), quantised to 8-bit integers and served by ONNX Runtime on CPU. Highlighted words are the ones whose removal lowers the prediction most.",
-    limits: "Gulf mostly means Saudi Arabia. Iraqi, Yemeni and Sudanese Arabic are not covered, nor is Arabizi. Below three words, the answer is close to a guess.",
     card: "Model card",
     cardHref: "https://huggingface.co/pinpin-http/lahja",
     hub: "Hugging Face",
   },
   fr: {
     classes: { gulf: "Golfe", levant: "Levant", egypt: "Égypte", maghreb: "Maghreb", msa: "Arabe standard" },
-    eyebrow: "Identification des dialectes arabes",
     lede: "Écrivez une phrase en arabe. Lahja dit si elle sonne comme le Golfe, le Levant, l'Égypte, le Maghreb ou l'arabe standard.",
     placeholder: "Écrivez ou collez une phrase en arabe",
     examples: "Essayer",
@@ -68,26 +53,11 @@ const I18N = {
     words: (n) => `${n}${NBSP}mot${n > 1 ? "s" : ""}`,
     clear: "Effacer",
     analyse: "Analyser",
-    statF1Browser: `80,1${NBSP}%`,
-    statF1Api: `80,4${NBSP}%`,
-    statF1Label: "de macro-F1 sur 2 749 phrases de test",
-    statOodBrowser: `78,7${NBSP}%`,
-    statOodApi: `78,5${NBSP}%`,
-    statOodLabel: "sur 3 000 tweets jamais vus à l'entraînement",
-    statLocalBrowser: `0${NBSP}octet`,
-    statLocalLabelBrowser: "de votre texte envoyé : le modèle tourne dans votre navigateur",
-    statLocalApi: `24${NBSP}ms`,
-    statLocalLabelApi: "par phrase sur 2 threads CPU (95e centile)",
-    aboutBrowser: "Un encodeur MARBERT affiné sur trois corpus sous licence ouverte (FLORES-200, SADA, Lahga) et quantifié en entiers 8 bits. Votre navigateur le télécharge une fois depuis Hugging Face, le garde en cache et le fait tourner avec ONNX Runtime Web. Les mots surlignés sont ceux dont le retrait fait le plus baisser la prédiction.",
-    aboutApi: "Un encodeur MARBERT affiné sur trois corpus sous licence ouverte (FLORES-200, SADA, Lahga), quantifié en entiers 8 bits et servi par ONNX Runtime sur CPU. Les mots surlignés sont ceux dont le retrait fait le plus baisser la prédiction.",
-    limits: "Golfe veut surtout dire Arabie saoudite. L'irakien, le yéménite, le soudanais et l'arabizi ne sont pas couverts. En dessous de trois mots, la réponse tient presque du hasard.",
     card: "Fiche du modèle",
     cardHref: "https://huggingface.co/pinpin-http/lahja/blob/main/model_card.fr.md",
     hub: "Hugging Face",
   },
 };
-const SUFFIX = MODE === "browser" ? "Browser" : "Api";
-const pick = (t, key) => t[key + SUFFIX] ?? t[key];
 
 const $ = (id) => document.getElementById(id);
 const text = $("text");
@@ -119,7 +89,7 @@ function setLang(l) {
   saved("lahja-lang", l);
   const t = I18N[l];
   document.documentElement.lang = l;
-  document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = pick(t, el.dataset.i18n)));
+  document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = t[el.dataset.i18n]));
   document.querySelectorAll("[data-i18n-aria]").forEach((el) => el.setAttribute("aria-label", t[el.dataset.i18nAria]));
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
   text.placeholder = t.placeholder;
@@ -271,7 +241,7 @@ function renderExamples() {
     b.type = "button";
     b.className = "chip";
     b.style.setProperty("--hue", HUES[c]);
-    b.append(document.createElement("i"), I18N[lang].classes[c]);
+    b.textContent = I18N[lang].classes[c];
     b.addEventListener("click", () => {
       cursor[c] = ((cursor[c] ?? -1) + 1) % examples[c].length;
       text.value = examples[c][cursor[c]];
@@ -444,6 +414,19 @@ fetch("/static/examples.json")
     renderExamples();
   })
   .catch(() => {});
+
+/* ---------- background follows the pointer a little ---------- */
+const parallax = document.querySelector(".parallax");
+if (parallax && matchMedia("(pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  let raf = 0;
+  addEventListener("pointermove", (e) => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      parallax.style.setProperty("--px", ((e.clientX / innerWidth - 0.5) * 6).toFixed(2) + "vw");
+      parallax.style.setProperty("--py", ((e.clientY / innerHeight - 0.5) * 6).toFixed(2) + "vh");
+    });
+  });
+}
 
 const params = new URLSearchParams(location.search);
 const q = params.get("q");
